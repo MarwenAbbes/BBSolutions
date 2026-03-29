@@ -1,0 +1,7 @@
+﻿services:
+  bb.api:
+    image: bb.api
+    build:
+      context: .
+      dockerfile: BB.API/Dockerfile
+
