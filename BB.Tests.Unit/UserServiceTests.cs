@@ -1,6 +1,6 @@
-using BB.Infrastructure.Models;
+using BB.Domain.Entities;
+using BB.Domain.Interfaces;
 using BB.Infrastructure.Repositories;
-using BB.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 using Moq;
 

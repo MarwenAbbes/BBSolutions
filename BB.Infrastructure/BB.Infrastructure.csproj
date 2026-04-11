@@ -13,4 +13,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\BB.Domain\BB.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -1,6 +1,7 @@
     using System.Text;
     using Asp.Versioning;
     using BB.API.Logging;
+    using BB.Domain.Interfaces;
     using BB.Infrastructure.Data;
     using BB.Infrastructure.Repositories;
     using BB.Infrastructure.Security;

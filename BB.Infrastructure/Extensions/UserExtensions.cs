@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BB.Infrastructure.Models;
+﻿using BB.Domain.DTO;
+using BB.Domain.Entities;
+
 
 namespace BB.Infrastructure.Extensions
 {
     public static class UserExtensions
     {
-        public static DTO.UserResponse ToResponse(this User user) => new()
+        public static UserResponse ToResponse(this User user) => new()
         {
             Id = user.Id,
             FirstName = user.FirstName,
@@ -16,7 +15,7 @@ namespace BB.Infrastructure.Extensions
             CreatedAt = user.CreatedAt
         };
 
-        public static User ToEntity(this DTO.CreateUserRequest request) => new()
+        public static User ToEntity(this CreateUserRequest request) => new()
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
@@ -24,7 +23,7 @@ namespace BB.Infrastructure.Extensions
             PasswordHash = request.Password  // raw -- service will hash
         };
 
-        public static User ToEntity(this DTO.UpdateUserRequest request, int id) => new()
+        public static User ToEntity(this UpdateUserRequest request, int id) => new()
         {
             Id= id,
             FirstName = request.FirstName,

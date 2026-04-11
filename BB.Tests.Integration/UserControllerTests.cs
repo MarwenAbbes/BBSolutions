@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using BB.Infrastructure.DTO;
-using BB.Infrastructure.Models;
+using BB.Domain.DTO;
+using BB.Domain.Entities;
 
 namespace BB.Tests.Integration;
 

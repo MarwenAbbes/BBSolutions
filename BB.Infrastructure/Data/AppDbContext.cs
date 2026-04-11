@@ -1,4 +1,4 @@
-using BB.Infrastructure.Models;
+using BB.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BB.Infrastructure.Data;

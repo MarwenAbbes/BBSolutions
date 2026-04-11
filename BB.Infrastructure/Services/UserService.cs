@@ -1,5 +1,5 @@
-using BB.Infrastructure.Models;
-using BB.Infrastructure.Security;
+using BB.Domain.Entities;
+using BB.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace BB.Infrastructure.Repositories;
