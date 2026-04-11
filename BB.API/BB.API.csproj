@@ -26,6 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BB.Domain\BB.Domain.csproj" />
       <ProjectReference Include="..\BB.Infrastructure\BB.Infrastructure.csproj" />
       <ProjectReference Include="..\Core.Common\Core.Common.csproj" />
     </ItemGroup>

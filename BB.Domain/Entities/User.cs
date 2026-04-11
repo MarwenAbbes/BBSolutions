@@ -1,4 +1,4 @@
-namespace BB.Infrastructure.Models;
+namespace BB.Domain.Entities;
 
 public class User
 {

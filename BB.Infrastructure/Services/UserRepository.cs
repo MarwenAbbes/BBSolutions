@@ -1,7 +1,7 @@
+using BB.Domain.Entities;
+using BB.Domain.Interfaces;
 using BB.Infrastructure.Data;
-using BB.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace BB.Infrastructure.Repositories;
 
