@@ -51,8 +51,11 @@
     builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
     builder.Services.AddScoped<IAuthService, AuthService>();
     
-    // Configure JWT Authentication
-    var jwtSecret = builder.Configuration["Jwt:Secret"]!;
+    var jwtSecret = builder.Configuration["Jwt:Secret"];
+    if (string.IsNullOrWhiteSpace(jwtSecret))
+        throw new InvalidOperationException(
+            "Jwt:Secret is not configured. Set it via user-secrets (dev) or environment variable (production): " +
+            "dotnet user-secrets set \"Jwt:Secret\" \"<your-key-at-least-32-chars>\" --project BB.API");
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
