@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using BB.Infrastructure.DTO;
 using BB.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BB.API.Controllers;
@@ -8,6 +9,7 @@ namespace BB.API.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;

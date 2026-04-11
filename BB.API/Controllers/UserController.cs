@@ -1,6 +1,9 @@
 using Asp.Versioning;
+using BB.Infrastructure.DTO;
+using BB.Infrastructure.Extensions;
 using BB.Infrastructure.Models;
 using BB.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BB.API.Controllers;
@@ -8,6 +11,7 @@ namespace BB.API.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -18,28 +22,32 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetAll() =>
-        Ok(await _userService.GetAllAsync());
+    public async Task<ActionResult<IEnumerable<UserResponse>>> GetAll()
+    {
+         var users = await _userService.GetAllAsync();
+        return Ok(users.Select(u => u.ToResponse()));
+    }
+       
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<User>> GetById(int id)
+    public async Task<ActionResult<UserResponse>> GetById(int id)
     {
         var user = await _userService.GetByIdAsync(id);
-        return user is null ? NotFound() : Ok(user);
+        return user is null ? NotFound() : Ok(user.ToResponse());
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> Create([FromBody] User user)
+    public async Task<ActionResult<UserResponse>> Create([FromBody] CreateUserRequest request)
     {
-        var created = await _userService.CreateAsync(user);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        var created = await _userService.CreateAsync(request.ToEntity());
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToResponse());
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<User>> Update(int id, [FromBody] User updated)
+    public async Task<ActionResult<UserResponse>> Update(int id, [FromBody] UpdateUserRequest updated)
     {
-        var user = await _userService.UpdateAsync(id, updated);
-        return user is null ? NotFound() : Ok(user);
+        var user = await _userService.UpdateAsync(id, updated.ToEntity(id));
+        return user is null ? NotFound() : Ok(user.ToResponse());
     }
 
     [HttpDelete("{id:int}")]
