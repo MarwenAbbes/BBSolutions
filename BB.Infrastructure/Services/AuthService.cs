@@ -1,9 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BB.Infrastructure.DTO;
-using BB.Infrastructure.Models;
-using BB.Infrastructure.Security;
+using BB.Domain.DTO;
+using BB.Domain.Entities;
+using BB.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 

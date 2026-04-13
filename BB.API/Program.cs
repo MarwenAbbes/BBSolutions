@@ -1,6 +1,7 @@
     using System.Text;
     using Asp.Versioning;
     using BB.API.Logging;
+    using BB.Domain.Interfaces;
     using BB.Infrastructure.Data;
     using BB.Infrastructure.Repositories;
     using BB.Infrastructure.Security;
@@ -71,8 +72,8 @@
                     Encoding.UTF8.GetBytes(jwtSecret))
             };
         });
-    
 
+    builder.Services.AddProblemDetails();
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -80,6 +81,9 @@
     {
         app.MapOpenApi();
     }
+
+    app.UseExceptionHandler();
+    app.UseStatusCodePages();
 
     app.UseHttpsRedirection();
     app.UseAuthentication();

@@ -1,4 +1,4 @@
-namespace BB.Infrastructure.Security;
+namespace BB.Domain.Interfaces;
 
 public interface IPasswordHasher
 {

@@ -1,5 +1,5 @@
-using BB.Infrastructure.Models;
-using BB.Infrastructure.Security;
+using BB.Domain.Entities;
+using BB.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace BB.Infrastructure.Repositories;
@@ -16,11 +16,11 @@ public class UserService : IUserService
         _passwordHasher = passwordHasher;
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync()
+    public async Task<(IEnumerable<User> Items, int TotalCount)> GetAllAsync(int page, int pageSize)
     {
-        var users = await _repo.GetAllAsync();
-        _logger.LogDebug("Get all users. Count {}", users.Count());
-        return users;
+        var(users, totalCount) = await _repo.GetAllAsync(page,pageSize);
+        _logger.LogDebug("Get users. Count {}", totalCount);
+        return (users,totalCount);
     } 
     public async Task<User?> GetByIdAsync(int id)
     {

@@ -1,10 +1,10 @@
-using BB.Infrastructure.Models;
+using BB.Domain.Entities;
 
-namespace BB.Infrastructure.Repositories;
+namespace BB.Domain.Interfaces;
 
 public interface IUserRepository
 {
-    Task<IEnumerable<User>> GetAllAsync();
+    Task<(IEnumerable<User> Items, int TotalCount)> GetAllAsync(int page, int pageSize);
     Task<User?> GetByIdAsync(int id);
     Task<User> CreateAsync(User user);
     Task<User?> UpdateAsync(int id, User updated);

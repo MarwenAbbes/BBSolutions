@@ -1,3 +1,5 @@
+using BB.Domain.Interfaces;
+
 namespace BB.Infrastructure.Security;
 
 public class PasswordHasher : IPasswordHasher

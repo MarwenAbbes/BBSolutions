@@ -1,6 +1,6 @@
 using Asp.Versioning;
-using BB.Infrastructure.DTO;
-using BB.Infrastructure.Repositories;
+using BB.Domain.DTO;
+using BB.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

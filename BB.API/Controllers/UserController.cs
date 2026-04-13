@@ -1,8 +1,7 @@
 using Asp.Versioning;
-using BB.Infrastructure.DTO;
+using BB.Domain.DTO;
+using BB.Domain.Interfaces;
 using BB.Infrastructure.Extensions;
-using BB.Infrastructure.Models;
-using BB.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,10 +21,17 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserResponse>>> GetAll()
+    public async Task<ActionResult<PaginatedResponse<UserResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-         var users = await _userService.GetAllAsync();
-        return Ok(users.Select(u => u.ToResponse()));
+        var (users, totalCount) = await _userService.GetAllAsync(page, pageSize);
+        return Ok(new PaginatedResponse<UserResponse>
+        {
+            Items= users.Select(u => u.ToResponse()),
+            Page= page,
+            PageSize= pageSize,
+            TotalCount=totalCount
+            
+            });
     }
        
 
