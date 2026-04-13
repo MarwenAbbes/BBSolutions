@@ -1,16 +1,15 @@
     using System.Text;
     using Asp.Versioning;
-    using BB.API.Logging;
     using BB.Domain.Interfaces;
     using BB.Infrastructure.Data;
     using BB.Infrastructure.Repositories;
     using BB.Infrastructure.Security;
-    using Core.Common.Logger;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.IdentityModel.Tokens;
+    using Serilog;
 
-    var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
 
@@ -27,16 +26,28 @@
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
     }
-    builder.Services.AddRabbitMqLogger(options =>
+    builder.Host.UseSerilog((context, config) =>
     {
-        options.Host     = "127.0.0.1";
-        options.Port     = 5672;
-        options.Username = "guest";
-        options.Password = "guest";
-        options.Exchange   = "logs.exchange";
-        options.QueueName = "logs";
-        options.RoutingKey = "logs.#";
-        options.SourceApplication = "BBSolutions.API";
+        config.ReadFrom.Configuration(context.Configuration)
+        .WriteTo.Console()
+        .Enrich.FromLogContext()
+        .Enrich.WithProperty("Application", "BBSolutions.API");
+
+        var rabbitHost = context.Configuration["RabbitMq:Host"];
+        if (!string.IsNullOrEmpty(rabbitHost))
+        {
+            config.WriteTo.RabbitMQ((rabbitSink, format) =>
+            {
+                rabbitSink.Hostnames = [rabbitHost];
+                rabbitSink.Port = context.Configuration.GetValue("RabbitMq:Port", 5672);
+                rabbitSink.Username = context.Configuration["RabbitMq:Username"] ?? "guest";
+                rabbitSink.Password = context.Configuration["RabbitMq:Password"] ?? "guest";
+                rabbitSink.Exchange = context.Configuration["RabbitMq:Exchange"] ?? "logs.exchange";
+                rabbitSink.ExchangeType = "topic";
+                rabbitSink.RoutingKey = "logs.bbsolutions";
+
+            });
+        }
     });
     builder.Services.AddApiVersioning(options =>
     {
@@ -44,9 +55,7 @@
         options.AssumeDefaultVersionWhenUnspecified = true;
         options.ReportApiVersions = true;
     });
-    builder.Logging.AddProvider(new RabbitMqLoggerProvider(
-        builder.Services.BuildServiceProvider().GetRequiredService<IRemoteLoggerFactory>()
-    ));
+
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
