@@ -29,14 +29,16 @@ public class UserServiceTests
     [Fact]
     public async Task GetAllAsync_ShouldReturnAllUsers()
     {
-        _mockRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(fakeUsers);
+        _mockRepo.Setup(r => r.GetAllAsync(1, 10))
+            .ReturnsAsync((fakeUsers.AsEnumerable(), fakeUsers.Count));
 
         // Act
-        var result = await _service.GetAllAsync();
+        var (items, totalCount) = await _service.GetAllAsync(1, 10);
 
         // Assert
-        Assert.Equal(2, result.Count());
-        _mockRepo.Verify(r => r.GetAllAsync(), Times.Once);
+        Assert.Equal(2, items.Count());
+        Assert.Equal(2, totalCount);
+        _mockRepo.Verify(r => r.GetAllAsync(1, 10), Times.Once);
     }
 
     [Fact]

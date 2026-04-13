@@ -21,10 +21,17 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserResponse>>> GetAll()
+    public async Task<ActionResult<PaginatedResponse<UserResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-         var users = await _userService.GetAllAsync();
-        return Ok(users.Select(u => u.ToResponse()));
+        var (users, totalCount) = await _userService.GetAllAsync(page, pageSize);
+        return Ok(new PaginatedResponse<UserResponse>
+        {
+            Items= users.Select(u => u.ToResponse()),
+            Page= page,
+            PageSize= pageSize,
+            TotalCount=totalCount
+            
+            });
     }
        
 
