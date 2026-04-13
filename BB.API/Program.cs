@@ -72,8 +72,8 @@
                     Encoding.UTF8.GetBytes(jwtSecret))
             };
         });
-    
 
+    builder.Services.AddProblemDetails();
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -81,6 +81,9 @@
     {
         app.MapOpenApi();
     }
+
+    app.UseExceptionHandler();
+    app.UseStatusCodePages();
 
     app.UseHttpsRedirection();
     app.UseAuthentication();

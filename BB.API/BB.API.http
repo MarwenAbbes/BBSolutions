@@ -1,6 +1,46 @@
-@BB.API_HostAddress = http://localhost:5086
+@host = http://localhost:5086
+@version = v1
 
-GET {{BB.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### Login
+POST {{host}}/api/{{version}}/auth/login
+Content-Type: application/json
 
-###
+{
+  "email": "admin@bb.com",
+  "password": "123qwe"
+}
+
+### Get all users (paginated)
+GET {{host}}/api/{{version}}/user?page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### Get user by ID
+GET {{host}}/api/{{version}}/user/1
+Authorization: Bearer {{token}}
+
+### Create user
+POST {{host}}/api/{{version}}/user
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@bb.com",
+  "password": "securepass123"
+}
+
+### Update user
+PUT {{host}}/api/{{version}}/user/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "firstName": "John Updated",
+  "lastName": "Doe",
+  "email": "john@bb.com"
+}
+
+### Delete user
+DELETE {{host}}/api/{{version}}/user/1
+Authorization: Bearer {{token}}

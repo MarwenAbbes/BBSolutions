@@ -12,9 +12,14 @@ public class UserRepository : IUserRepository
     {
         _context = context;
     }
-    
-    public async Task<IEnumerable<User>> GetAllAsync() =>
-        await _context.Users.ToListAsync();
+
+    public async Task<(IEnumerable<User> Items, int TotalCount)> GetAllAsync(int page, int pageSize)
+    {
+        var totalCount = await _context.Users.CountAsync();
+        var items = await _context.Users.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return(items, totalCount);
+    }
+
 
     public async Task<User?> GetByIdAsync(int id) =>
         await _context.Users.FindAsync(id);
@@ -32,8 +37,8 @@ public class UserRepository : IUserRepository
         if (existing is null) return null;
 
         existing.FirstName = updated.FirstName;
-        existing.LastName  = updated.LastName;
-        existing.Email     = updated.Email;
+        existing.LastName = updated.LastName;
+        existing.Email = updated.Email;
 
         await _context.SaveChangesAsync();
         return existing;
@@ -49,9 +54,9 @@ public class UserRepository : IUserRepository
         return true;
     }
 
-    public async  Task<User?> GetByEmailAsync(string email)
+    public async Task<User?> GetByEmailAsync(string email)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u=> u.Email == email);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         return user;
     }
 }
