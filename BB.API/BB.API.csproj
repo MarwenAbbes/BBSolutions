@@ -13,6 +13,9 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
         <PackageReference Include="Asp.Versioning.Mvc" />
+		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Serilog.Sinks.Console" />
+		<PackageReference Include="Serilog.Sinks.RabbitMQ" />
     </ItemGroup>
 
     <ItemGroup>
@@ -28,7 +31,6 @@
     <ItemGroup>
       <ProjectReference Include="..\BB.Domain\BB.Domain.csproj" />
       <ProjectReference Include="..\BB.Infrastructure\BB.Infrastructure.csproj" />
-      <ProjectReference Include="..\Core.Common\Core.Common.csproj" />
     </ItemGroup>
 
 </Project>
