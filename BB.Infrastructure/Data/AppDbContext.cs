@@ -16,7 +16,7 @@ public class AppDbContext : DbContext
             FirstName = "Admin",
             LastName = "User",
             Email = "admin@bb.com",
-            PasswordHash = "$2a$11$e77yzVgdvLzdGPVzCYwym..DjHcJYObz4NCah3hSCnxm3EH4bGYR2",
+            PasswordHash = "$2a$11$UZFNqhTwC8zKXyjFl4UG6O90kwygAyS6a6CMsv0C9c.l7c9Rjc0Sa",
             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         });
     }
