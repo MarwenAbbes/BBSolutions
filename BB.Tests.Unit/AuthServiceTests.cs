@@ -9,10 +9,10 @@ namespace BB.Tests.Unit;
 
 public class AuthServiceTests
 {
-    private readonly Mock<IUserRepository> _mockRepo;
-    private readonly Mock<IPasswordHasher> _mockHasher;
+    private readonly Mock<IUserRepository> _userRepositoryMock;
+    private readonly Mock<IPasswordHasher> _passwordHasherMock;
+    private readonly AuthService _authService;
     private readonly Mock<IConfiguration> _mockConfig;
-    private readonly AuthService _service;
 
     private readonly User _fakeUser = new()
     {
@@ -25,69 +25,73 @@ public class AuthServiceTests
 
     public AuthServiceTests()
     {
-        _mockRepo = new Mock<IUserRepository>();
-        _mockHasher = new Mock<IPasswordHasher>();
+        _userRepositoryMock = new Mock<IUserRepository>();
+        _passwordHasherMock = new Mock<IPasswordHasher>();
         _mockConfig = new Mock<IConfiguration>();
 
-        _mockConfig.Setup(c => c["Jwt:Secret"])
-            .Returns("test-secret-key-that-is-at-least-32-characters-long");
+        _mockConfig.Setup(c => c["Jwt:Secret"]).Returns("test-secret-key-that-is-at-least-32-characters-long");
         _mockConfig.Setup(c => c["Jwt:Issuer"]).Returns("BB.API");
         _mockConfig.Setup(c => c["Jwt:Audience"]).Returns("BB.API");
         _mockConfig.Setup(c => c["Jwt:ExpiryMinutes"]).Returns("60");
 
-        _service = new AuthService(_mockRepo.Object, _mockHasher.Object, _mockConfig.Object);
+        _authService = new AuthService(_userRepositoryMock.Object, _passwordHasherMock.Object, _mockConfig.Object);
     }
 
     [Fact]
-    public async Task LoginAsync_WithNonExistentEmail_ReturnsNull()
+    public async Task LoginAsync_WithNonExistentEmail_ReturnNull()
     {
-        _mockRepo.Setup(r => r.GetByEmailAsync("unknown@bb.com"))
-            .ReturnsAsync((User?)null);
-
-        var result = await _service.LoginAsync(new LoginRequest
+        //Arrange
+        _userRepositoryMock.Setup(repo => repo.GetByEmailAsync("unkown@bb.com")).ReturnsAsync((User?)null);
+        // Act
+        var result = await _authService.LoginAsync(new LoginRequest
         {
-            Email = "unknown@bb.com",
-            Password = "anypassword"
+            Email = "unkown@bb.com",
+            Password = "any-password"
         });
 
+        // Assert
         Assert.Null(result);
-        _mockHasher.Verify(h => h.Verify(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _passwordHasherMock.Verify(ph => ph.Verify(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
-    public async Task LoginAsync_WithWrongPassword_ReturnsNull()
+    public async Task LoginAsync_WithIncorrectPassword_ReturnNull()
     {
-        _mockRepo.Setup(r => r.GetByEmailAsync("admin@bb.com"))
-            .ReturnsAsync(_fakeUser);
-        _mockHasher.Setup(h => h.Verify("wrongpassword", _fakeUser.PasswordHash))
-            .Returns(false);
+        // Arrange
+        _userRepositoryMock.Setup(repo => repo.GetByEmailAsync("admin@bb.com")).ReturnsAsync(_fakeUser);
+        _passwordHasherMock.Setup(ph => ph.Verify("wrongpassword", _fakeUser.PasswordHash)).Returns(false);
 
-        var result = await _service.LoginAsync(new LoginRequest
+        // Act
+        var result = await _authService.LoginAsync(new LoginRequest
         {
             Email = "admin@bb.com",
             Password = "wrongpassword"
         });
 
+        // Assert
         Assert.Null(result);
+        _passwordHasherMock.Verify(ph => ph.Verify("wrongpassword", _fakeUser.PasswordHash), Times.Once);
     }
 
     [Fact]
-    public async Task LoginAsync_WithValidCredentials_ReturnsToken()
+    public async Task LoginAsync_WithCorrectCredentials_ReturnToken()
     {
-        _mockRepo.Setup(r => r.GetByEmailAsync("admin@bb.com"))
-            .ReturnsAsync(_fakeUser);
-        _mockHasher.Setup(h => h.Verify("Admin@123", _fakeUser.PasswordHash))
-            .Returns(true);
+        // Arrange
+        _userRepositoryMock.Setup(repo => repo.GetByEmailAsync("admin@bb.com")).ReturnsAsync(_fakeUser);
+        _passwordHasherMock.Setup(ph => ph.Verify("correctpassword", _fakeUser.PasswordHash)).Returns(true);
 
-        var result = await _service.LoginAsync(new LoginRequest
+        // Act
+        var result = await _authService.LoginAsync(new LoginRequest
         {
             Email = "admin@bb.com",
-            Password = "Admin@123"
+            Password = "correctpassword"
         });
 
+        // Assert
         Assert.NotNull(result);
         Assert.False(string.IsNullOrEmpty(result.Token));
         Assert.True(result.ExpiresAt > DateTime.UtcNow);
-        Assert.True(result.ExpiresAt < DateTime.UtcNow.AddMinutes(61));
+        Assert.True(result.ExpiresAt <= DateTime.UtcNow.AddHours(1));
+        _passwordHasherMock.Verify(ph => ph.Verify("correctpassword", _fakeUser.PasswordHash), Times.Once);
     }
 }
