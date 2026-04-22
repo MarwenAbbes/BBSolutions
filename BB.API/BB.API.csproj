@@ -16,6 +16,8 @@
 		<PackageReference Include="Serilog.AspNetCore" />
 		<PackageReference Include="Serilog.Sinks.Console" />
 		<PackageReference Include="Serilog.Sinks.RabbitMQ" />
+		<PackageReference Include="AspNetCore.HealthChecks.SqlServer" />
+		<PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" />
     </ItemGroup>
 
     <ItemGroup>
