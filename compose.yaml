@@ -14,6 +14,15 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=BBDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True
+      - Jwt__Secret=change-this-to-a-secure-key-at-least-32-characters
+      - Jwt__Issuer=BB.API
+      - Jwt__Audience=BB.API
+      - Jwt__ExpiryMinutes=60
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Port=5672
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__Exchange=logs.exchange
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
