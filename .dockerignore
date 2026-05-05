@@ -9,6 +9,7 @@
 **/.vscode
 **/.idea
 **/*.*proj.user
+**/*.DotSettings.user
 **/*.dbmdl
 **/*.jfm
 **/azds.yaml

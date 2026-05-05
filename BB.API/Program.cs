@@ -1,14 +1,15 @@
-using System.Text;
-using Asp.Versioning;
-using BB.Domain.Interfaces;
-using BB.Infrastructure.Data;
-using BB.Infrastructure.Repositories;
-using BB.Infrastructure.Security;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using RabbitMQ.Client;
-using Serilog;
+    using System.Text;
+    using System.Threading.RateLimiting;
+    using Asp.Versioning;
+    using BB.Domain.Interfaces;
+    using BB.Infrastructure.Data;
+    using BB.Infrastructure.Repositories;
+    using BB.Infrastructure.Security;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.RateLimiting;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.IdentityModel.Tokens;
+    using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,10 +77,42 @@ builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnect
     .AddRabbitMQ(name: "rabbitmq", failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded);
 
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddProblemDetails();
+
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        if (allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+    });
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("auth", limiter =>
+    {
+        limiter.PermitLimit = 5;
+        limiter.Window = TimeSpan.FromMinutes(1);
+        limiter.QueueLimit = 0;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+var app = builder.Build();
+
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 var jwtSecret = builder.Configuration["Jwt:Secret"];
 if (string.IsNullOrWhiteSpace(jwtSecret))
@@ -105,14 +138,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddProblemDetails();
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseExceptionHandler();
-app.UseStatusCodePages();
+    app.UseExceptionHandler();
+    app.UseStatusCodePages();
+    app.UseCors();
+    app.UseRateLimiter();
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
