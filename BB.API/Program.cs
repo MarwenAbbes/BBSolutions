@@ -130,12 +130,21 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter("auth", limiter =>
+    // Parallel integration tests issue many login requests; a tight prod limit causes flaky 429s in CI.
+    if (builder.Environment.IsEnvironment("Testing"))
     {
-        limiter.PermitLimit = 5;
-        limiter.Window = TimeSpan.FromMinutes(1);
-        limiter.QueueLimit = 0;
-    });
+        options.AddPolicy("auth", _ => RateLimitPartition.GetNoLimiter(string.Empty));
+    }
+    else
+    {
+        options.AddFixedWindowLimiter("auth", limiter =>
+        {
+            limiter.PermitLimit = 5;
+            limiter.Window = TimeSpan.FromMinutes(1);
+            limiter.QueueLimit = 0;
+        });
+    }
+
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
