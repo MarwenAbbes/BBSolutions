@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="compose.yaml" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/BB.API/BB.API.csproj" />
+    <Project Path="src/BB.Domain/BB.Domain.csproj" />
+    <Project Path="src/BB.Infrastructure/BB.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BB.Tests.Unit/BB.Tests.Unit.csproj" />
+    <Project Path="tests/BB.Tests.Integration/BB.Tests.Integration.csproj" />
+  </Folder>
+</Solution>
