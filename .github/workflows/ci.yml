@@ -19,10 +19,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore BBSolutions.sln
+        run: dotnet restore BBSolutions.slnx
 
       - name: Build
-        run: dotnet build BBSolutions.sln --no-restore --configuration Release
+        run: dotnet build BBSolutions.slnx --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test BBSolutions.sln --no-build --configuration Release --verbosity normal
+        run: dotnet test BBSolutions.slnx --no-build --configuration Release --verbosity normal

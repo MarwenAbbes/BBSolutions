@@ -3,7 +3,7 @@
     image: bb.api
     build:
       context: .
-      dockerfile: BB.API/Dockerfile
+      dockerfile: src/BB.API/Dockerfile
     ports:
       - "5000:8080"
     depends_on:

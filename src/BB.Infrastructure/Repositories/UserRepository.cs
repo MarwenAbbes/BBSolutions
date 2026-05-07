@@ -1,0 +1,80 @@
+using BB.Domain.Entities;
+using BB.Domain.Interfaces;
+using BB.Infrastructure.Data;
+using BB.Infrastructure.Security;
+using Microsoft.EntityFrameworkCore;
+
+namespace BB.Infrastructure.Repositories;
+
+public class UserRepository : IUserRepository
+{
+    private readonly AppDbContext _context;
+    public UserRepository(AppDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<(IEnumerable<User> Items, int TotalCount)> GetAllAsync(int page, int pageSize)
+    {
+        var totalCount = await _context.Users.CountAsync();
+        var items = await _context.Users.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return(items, totalCount);
+    }
+
+
+    public async Task<User?> GetByIdAsync(int id) =>
+        await _context.Users.FindAsync(id);
+
+    public async Task<User> CreateAsync(User user)
+    {
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+        return user;
+    }
+
+    public async Task<User?> UpdateAsync(int id, User updated)
+    {
+        var existing = await _context.Users.FindAsync(id);
+        if (existing is null) return null;
+
+        existing.FirstName = updated.FirstName;
+        existing.LastName = updated.LastName;
+        existing.Email = updated.Email;
+
+        await _context.SaveChangesAsync();
+        return existing;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user is null) return false;
+
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return user;
+    }
+
+    public Task RecordLoginFailureAsync(User user, CancellationToken cancellationToken = default)
+    {
+        user.AccessFailedCount++;
+        if (user.AccessFailedCount >= LoginLockout.MaxFailedAccessAttempts)
+            user.LockoutEnd = DateTimeOffset.UtcNow + LoginLockout.DefaultLockoutDuration;
+
+        return _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task RecordLoginSuccessAsync(User user, CancellationToken cancellationToken = default)
+    {
+        user.AccessFailedCount = 0;
+        user.LockoutEnd = null;
+        user.LastLoginAt = DateTime.UtcNow;
+        return _context.SaveChangesAsync(cancellationToken);
+    }
+}
